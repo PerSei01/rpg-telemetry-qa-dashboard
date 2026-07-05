@@ -3,6 +3,7 @@ from sqlalchemy import text
 
 from app.database import Base, engine
 from app import models
+from app.routers import events, sessions
 
 app = FastAPI(
     title="RPG Telemetry QA Dashboard API",
@@ -30,3 +31,7 @@ def health_check():
         "status": "ok",
         "database": "connected",
     }
+
+
+app.include_router(sessions.router)
+app.include_router(events.router)
