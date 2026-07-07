@@ -121,3 +121,25 @@ List events for a playtest session:
 ```http
 GET /sessions/{session_id}/events
 ```
+
+## Generate Fake Gameplay Sessions
+
+Make sure the backend server is running:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+Run the generator from the `backend/` directory:
+
+```bash
+python scripts/generate_sessions.py
+```
+
+The script creates several demo playtest sessions:
+
+- normal quest run
+- player death run
+- FPS drop run
+- broken quest run
+- wrong reward run
