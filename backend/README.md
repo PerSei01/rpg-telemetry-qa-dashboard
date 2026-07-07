@@ -143,3 +143,38 @@ The script creates several demo playtest sessions:
 - FPS drop run
 - broken quest run
 - wrong reward run
+
+## Validate Playtest Session
+
+Run quest validation for a playtest session:
+
+```http
+POST /sessions/{session_id}/validate
+```
+
+The validator currently detects:
+
+- reward granted before quest completion
+- quest completed without required stages
+
+Example response:
+
+```json
+ {
+      "id": 2,
+      "session_id": 7,
+      "severity": "high",
+      "title": "Reward granted before quest completion",
+      "description": "Reward was granted for quest 'missing_alchemist' before the quest was completed.",
+      "quest_id": "missing_alchemist",
+      "event_id": 32,
+      "reproduction_steps": [
+        "1. quest_started (area=village, quest=missing_alchemist, stage=talk_to_guard)",
+        "2. quest_stage_completed (area=village, quest=missing_alchemist, stage=talked_to_guard)",
+        "3. reward_given (area=village, quest=missing_alchemist)"
+      ],
+      "created_at": "2026-07-07T17:49:01.546187"
+    }
+  ]
+}
+```

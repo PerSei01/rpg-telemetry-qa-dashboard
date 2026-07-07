@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class PlaytestSessionCreate(BaseModel):
@@ -49,10 +49,33 @@ class DetectedIssueRead(BaseModel):
     description: str
     quest_id: str | None = None
     event_id: int | None = None
-    reproduction_steps: str | None = None
+    reproduction_steps: list[str] = Field(default_factory=list)
     created_at: datetime
+
+    @field_validator("reproduction_steps", mode="before")
+    @classmethod
+    def split_reproduction_steps(cls, value):
+        if value is None:
+            return []
+
+        if isinstance(value, list):
+            return value
+
+        if isinstance(value, str):
+            return [
+                line for line in value.splitlines()
+                if line.strip()
+            ]
+
+        return [str(value)]
 
 
 class PlaytestSessionDetail(PlaytestSessionRead):
     events: list[TelemetryEventRead] = []
     detected_issues: list[DetectedIssueRead] = []
+
+
+class ValidationResult(BaseModel):
+    session_id: int
+    issues_created: int
+    issues: list[DetectedIssueRead]
