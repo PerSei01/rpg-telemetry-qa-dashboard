@@ -178,3 +178,55 @@ Example response:
   ]
 }
 ```
+
+## Export Bug Report
+
+Generate a Markdown bug report for a detected issue:
+
+```http
+GET /issues/{issue_id}/bug-report
+```
+
+The endpoint returns a Markdown-formatted QA report with:
+
+- issue title
+- severity
+- session id
+- build version
+- quest id
+- description
+- steps to reproduce
+- expected result
+- actual result
+
+Example output:
+
+```md
+# Bug Report: Quest completed without required stages
+
+## Severity
+Critical
+
+## Session
+Session ID: 6  
+Build: 0.1.0
+
+## Quest
+missing_alchemist
+
+## Description
+Quest 'missing_alchemist' was completed without required stages: entered_cave, found_alchemist.
+
+## Steps to Reproduce
+1. quest_started (area=village, quest=missing_alchemist, stage=talk_to_guard)
+2. quest_stage_completed (area=village, quest=missing_alchemist, stage=talked_to_guard)
+3. entered_area (area=village, quest=missing_alchemist)
+4. quest_stage_completed (area=village, quest=missing_alchemist, stage=returned_to_village)
+5. quest_completed (area=village, quest=missing_alchemist)
+
+## Expected Result
+Quest should only be completed after all required stages are completed.
+
+## Actual Result
+Quest was completed while one or more required stages were missing.
+```
