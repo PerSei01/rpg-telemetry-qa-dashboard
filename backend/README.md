@@ -4,20 +4,22 @@ FastAPI backend for RPG Telemetry & Quest QA Dashboard.
 
 ## Current Scope
 
-- FastAPI application setup
-- PostgreSQL connection
-- SQLAlchemy ORM configuration
-- Initial database models:
-  - PlaytestSession
-  - TelemetryEvent
-  - DetectedIssue
-- Health check endpoint
-- Playtest session API
-- Telemetry event API
+* FastAPI application setup
+* PostgreSQL connection
+* SQLAlchemy ORM configuration
+* Database models:
+  * PlaytestSession
+  * TelemetryEvent
+  * DetectedIssue
+* Health check endpoint
+* Playtest session API
+* Telemetry event API
+* Quest state validation
+* Markdown bug report export
 
 ## Run Locally
 
-Create and activate virtual environment:
+Create and activate a virtual environment:
 
 ```bash
 python -m venv .venv
@@ -30,19 +32,19 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Create `.env` file:
+Create a `.env` file:
 
 ```env
 DATABASE_URL=postgresql+psycopg://postgres:YOUR_PASSWORD@localhost:5432/rpg_telemetry_db
 ```
 
-Run server:
+Run the server:
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-Open:
+Open the interactive API documentation:
 
 ```text
 http://127.0.0.1:8000/docs
@@ -124,13 +126,7 @@ GET /sessions/{session_id}/events
 
 ## Generate Fake Gameplay Sessions
 
-Make sure the backend server is running:
-
-```bash
-uvicorn app.main:app --reload
-```
-
-Run the generator from the `backend/` directory:
+Make sure the backend server is running, then execute the generator from the `backend/` directory:
 
 ```bash
 python scripts/generate_sessions.py
@@ -138,11 +134,11 @@ python scripts/generate_sessions.py
 
 The script creates several demo playtest sessions:
 
-- normal quest run
-- player death run
-- FPS drop run
-- broken quest run
-- wrong reward run
+* normal quest run
+* player death run
+* FPS drop run
+* broken quest run
+* wrong reward run
 
 ## Validate Playtest Session
 
@@ -154,13 +150,17 @@ POST /sessions/{session_id}/validate
 
 The validator currently detects:
 
-- reward granted before quest completion
-- quest completed without required stages
+* reward granted before quest completion
+* quest completed without required stages
 
 Example response:
 
 ```json
- {
+{
+  "session_id": 7,
+  "issues_created": 1,
+  "issues": [
+    {
       "id": 2,
       "session_id": 7,
       "severity": "high",
@@ -187,17 +187,17 @@ Generate a Markdown bug report for a detected issue:
 GET /issues/{issue_id}/bug-report
 ```
 
-The endpoint returns a Markdown-formatted QA report with:
+The endpoint returns a Markdown-formatted QA report containing:
 
-- issue title
-- severity
-- session id
-- build version
-- quest id
-- description
-- steps to reproduce
-- expected result
-- actual result
+* issue title
+* severity
+* session ID
+* build version
+* quest ID
+* description
+* steps to reproduce
+* expected result
+* actual result
 
 Example output:
 
