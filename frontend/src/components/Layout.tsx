@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { NavLink, Outlet } from "react-router";
 
 function getNavigationClass({
@@ -38,7 +39,22 @@ export function Layout() {
       </aside>
 
       <main className="main-content">
-        <Outlet />
+        <Suspense
+          fallback={
+            <section className="page">
+              <div
+                className="status-panel"
+                role="status"
+                aria-live="polite"
+              >
+                <strong>Loading dashboard page...</strong>
+                <span>Downloading the requested application module.</span>
+              </div>
+            </section>
+          }
+        >
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   );

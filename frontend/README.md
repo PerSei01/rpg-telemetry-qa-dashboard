@@ -31,14 +31,29 @@ http://localhost:5173
 ## Available Routes
 
 ```text
-/                     Dashboard overview
+/                     Dashboard overview and analytics
 /sessions             Playtest session list
-/sessions/{id}        Playtest session details
-/issues                Detected issues
+/sessions/{id}        Event timeline and validation findings
+/issues                Filterable detected issue list
 ```
 
-## Production Build
+## Current Features
+
+- dashboard summary
+- telemetry events by type
+- detected issues by severity
+- deaths and FPS drops by area
+- area risk overview
+- playtest session timeline
+- telemetry payload inspection
+- detected issue filters
+- Markdown bug report links
+- responsive layout
+- route-level code splitting
+
+## Production Checks
 
 ```bash
+npm run lint
 npm run build
 ```

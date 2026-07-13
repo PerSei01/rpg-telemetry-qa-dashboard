@@ -3,6 +3,7 @@ import { Link } from "react-router";
 
 import { getSessions } from "../api/client";
 import type { PlaytestSessionSummary } from "../types/api";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 function formatDate(dateValue: string): string {
   return new Intl.DateTimeFormat(undefined, {
@@ -12,6 +13,7 @@ function formatDate(dateValue: string): string {
 }
 
 export function SessionsPage() {
+  useDocumentTitle("Sessions");
   const [sessions, setSessions] = useState<PlaytestSessionSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
