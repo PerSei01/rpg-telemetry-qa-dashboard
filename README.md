@@ -8,58 +8,81 @@ Large RPGs contain branching quests, dependent objectives, rewards, dialogue cho
 
 This project demonstrates how structured gameplay telemetry can help QA engineers and developers:
 
-* inspect complete playtest sessions;
-* detect invalid quest states automatically;
-* identify problematic game areas;
-* analyze player deaths and performance drops;
-* generate consistent Markdown bug reports with reproduction steps.
+- inspect complete playtest sessions;
+- detect invalid quest states automatically;
+- identify problematic game areas;
+- analyze player deaths and performance drops;
+- generate consistent Markdown bug reports with reproduction steps.
 
 ## Current Status
 
-The backend API and analytical frontend dashboard are implemented and connected.
+The backend API, analytical frontend dashboard, automated test suite, continuous integration workflow, and Docker Compose environment are implemented and connected.
 
 The project currently supports:
 
-* playtest session creation;
-* telemetry event ingestion;
-* quest state validation;
-* automatic issue detection;
-* Markdown bug report generation;
-* session event timelines;
-* telemetry payload inspection;
-* issue filtering and search;
-* gameplay analytics charts;
-* area risk scoring;
-* responsive frontend navigation;
-* frontend production builds with route-level code splitting.
+- playtest session creation;
+- telemetry event ingestion;
+- quest state validation;
+- automatic issue detection;
+- Markdown bug report generation;
+- session event timelines;
+- telemetry payload inspection;
+- issue filtering and search;
+- gameplay analytics charts;
+- area risk scoring;
+- responsive frontend navigation;
+- route-level frontend code splitting;
+- isolated backend API tests;
+- quest validator and bug report tests;
+- automated frontend linting and production builds;
+- full-stack Docker startup;
+- automated Docker smoke testing in CI.
 
-Automated backend tests, CI, Docker setup, and Unreal Engine telemetry integration are the next development stages.
+Unreal Engine telemetry integration is the next major development stage.
 
 ## Tech Stack
 
 ### Backend
 
-* Python
-* FastAPI
-* SQLAlchemy
-* PostgreSQL
-* Pydantic
+- Python 3.10
+- FastAPI
+- SQLAlchemy
+- PostgreSQL
+- Psycopg 3
+- Pydantic
 
 ### Frontend
 
-* React
-* TypeScript
-* Vite
-* React Router
-* Recharts
+- React
+- TypeScript
+- Vite
+- React Router
+- Recharts
+- Nginx
 
-### Planned Integration and Infrastructure
+### Testing and CI
 
-* Unreal Engine 5
-* C++ telemetry sender
-* pytest
-* GitHub Actions
-* Docker Compose
+- pytest
+- FastAPI TestClient
+- isolated in-memory SQLite test database
+- ESLint
+- GitHub Actions
+- Docker smoke tests
+
+### Infrastructure
+
+- Docker
+- Docker Compose
+- PostgreSQL container
+- multi-stage frontend image
+- Nginx reverse proxy
+- persistent Docker volume
+
+### Planned Game Integration
+
+- Unreal Engine 5
+- reusable C++ telemetry sender
+- UE5 demonstration level
 
 ## Architecture
 
@@ -78,56 +101,74 @@ Gameplay Client / Demo Generator
 
 The gameplay client sends structured telemetry events to the API. The backend stores the events, validates quest progression, and creates detected issues. The frontend retrieves the stored data and presents it as timelines, filters, charts, and risk summaries.
 
+The Docker environment uses the following structure:
+
+```text
+Browser
+   |
+   v
+Nginx + React
+   |
+   | /api
+   v
+FastAPI Backend
+   |
+   v
+PostgreSQL
+```
+
+Nginx serves the production frontend and proxies `/api` requests to the FastAPI container.
+
 ## Implemented Features
 
 ### Telemetry Sessions
 
-* create and list playtest sessions;
-* retrieve a session with its events and detected issues;
-* associate events with player, build, quest, area, and timestamp;
-* store arbitrary structured event payloads.
+- create and list playtest sessions;
+- retrieve a session with its events and detected issues;
+- associate events with player, build, quest, area, and timestamp;
+- store arbitrary structured event payloads.
 
 ### Quest Validation
 
 The validation service detects invalid quest situations such as:
 
-* rewards granted before quest completion;
-* quests completed without all required stages;
-* incomplete or inconsistent quest progression.
+- rewards granted before quest completion;
+- quests completed without all required stages;
+- incomplete or inconsistent quest progression.
 
 Detected issues contain:
 
-* severity;
-* title and description;
-* related quest and telemetry event;
-* reproduction steps;
-* session and build context.
+- severity;
+- title and description;
+- related quest and telemetry event;
+- reproduction steps;
+- session and build context.
 
 ### Bug Report Generation
 
 Each detected issue can be exported as a Markdown bug report containing:
 
-* issue summary;
-* severity and build version;
-* affected quest;
-* related event;
-* reproduction steps;
-* expected and actual behavior.
+- issue summary;
+- severity and build version;
+- affected quest;
+- related event;
+- reproduction steps;
+- expected and actual behavior.
 
 ### Dashboard
 
 The React dashboard includes:
 
-* total sessions, events, issues, and latest build;
-* telemetry events grouped by type;
-* detected issues grouped by severity;
-* player deaths and FPS drops grouped by area;
-* area risk overview;
-* session list;
-* detailed event timeline;
-* expandable event payloads;
-* issue search and filters;
-* links to generated Markdown bug reports.
+- total sessions, events, issues, and latest build;
+- telemetry events grouped by type;
+- detected issues grouped by severity;
+- player deaths and FPS drops grouped by area;
+- area risk overview;
+- session list;
+- detailed event timeline;
+- expandable event payloads;
+- issue search and filters;
+- links to generated Markdown bug reports.
 
 ## Area Risk Analysis
 
@@ -153,35 +194,52 @@ Risk levels:
 
 This score is an analytical QA heuristic rather than a gameplay difficulty measurement.
 
-## Project Structure
+## Run with Docker
 
-```text
-rpg-telemetry-qa-dashboard/
-├── backend/
-│   ├── app/
-│   │   ├── routers/
-│   │   ├── services/
-│   │   ├── database.py
-│   │   ├── main.py
-│   │   ├── models.py
-│   │   └── schemas.py
-│   ├── scripts/
-│   │   └── generate_sessions.py
-│   └── README.md
-├── frontend/
-│   ├── src/
-│   │   ├── api/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── pages/
-│   │   └── types/
-│   └── README.md
-├── unreal-demo/
-├── docs/
-└── README.md
+The complete application can be built and started with Docker Compose:
+
+```bash
+docker compose up --build
 ```
 
-## Run Locally
+Available services:
+
+```text
+Frontend       http://localhost:8080
+Backend        http://localhost:8000
+API docs       http://localhost:8000/docs
+PostgreSQL     localhost:5433
+```
+
+Generate demonstration playtest sessions inside the backend container:
+
+```bash
+docker compose exec backend python scripts/generate_sessions.py
+```
+
+View running services:
+
+```bash
+docker compose ps
+```
+
+Stop the application:
+
+```bash
+docker compose down
+```
+
+The PostgreSQL data is stored in a named Docker volume and remains available after a normal restart.
+
+Remove the containers and all containerized PostgreSQL data:
+
+```bash
+docker compose down --volumes
+```
+
+The Docker environment does not require a locally installed PostgreSQL server, Python virtual environment, or Node.js dependencies.
+
+## Run Locally without Docker
 
 ### Backend
 
@@ -191,13 +249,22 @@ Open a terminal in the backend directory:
 cd backend
 ```
 
-Activate the virtual environment on Windows:
+Create and activate a Python virtual environment.
+
+Windows PowerShell:
 
 ```powershell
+python -m venv .venv
 .venv\Scripts\Activate.ps1
 ```
 
-Start the FastAPI server:
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Configure the PostgreSQL connection through `DATABASE_URL`, then start FastAPI:
 
 ```bash
 uvicorn app.main:app --reload
@@ -215,7 +282,7 @@ Interactive API documentation:
 http://127.0.0.1:8000/docs
 ```
 
-For database configuration and backend-specific setup, see:
+For backend-specific instructions, see:
 
 ```text
 backend/README.md
@@ -245,7 +312,7 @@ frontend/README.md
 
 ## Generate Demo Sessions
 
-With the backend running:
+With the backend running locally:
 
 ```bash
 cd backend
@@ -254,11 +321,11 @@ python scripts/generate_sessions.py
 
 The generator creates several example playtest scenarios:
 
-* normal quest completion;
-* player death;
-* FPS drops;
-* quest completed without required stages;
-* reward granted at an invalid quest state.
+- normal quest completion;
+- player death;
+- FPS drops;
+- quest completed without required stages;
+- reward granted before quest completion.
 
 Broken sessions can then be validated through the API to create detected issues.
 
@@ -288,6 +355,35 @@ GET  /issues/{issue_id}/bug-report
 /issues                Searchable and filterable issue list
 ```
 
+## Backend Tests
+
+Install development dependencies:
+
+```bash
+cd backend
+pip install -r requirements-dev.txt
+```
+
+Run the full test suite:
+
+```bash
+python -m pytest
+```
+
+The tests cover:
+
+- health endpoint;
+- session creation and retrieval;
+- telemetry event ingestion;
+- missing-resource responses;
+- valid quest progression;
+- missing required quest stages;
+- rewards granted before completion;
+- repeated validation;
+- Markdown bug report generation.
+
+The test suite uses an isolated in-memory SQLite database and does not modify the development PostgreSQL database.
+
 ## Frontend Quality Checks
 
 ```bash
@@ -298,17 +394,42 @@ npm run build
 
 The frontend uses lazy-loaded routes and code splitting so analytical dependencies are not included in every initial page load.
 
+## Continuous Integration
+
+GitHub Actions runs automatically on every push and pull request.
+
+The workflow contains three jobs:
+
+```text
+Backend Tests
+- install Python dependencies
+- run the complete pytest suite
+
+Frontend Lint and Build
+- install locked npm dependencies
+- run ESLint
+- create a production build
+
+Docker Smoke Test
+- build the complete Docker Compose stack
+- start PostgreSQL, FastAPI, and Nginx
+- verify the backend health endpoint
+- verify the frontend
+- verify the Nginx-to-FastAPI API proxy
+```
+
+The Docker smoke test runs only after the backend and frontend jobs complete successfully.
+
 ## Roadmap
 
-* add isolated backend test infrastructure;
-* test API endpoints, quest validation, and bug reports;
-* add GitHub Actions continuous integration;
-* containerize the backend, frontend, and PostgreSQL;
-* create an Unreal Engine 5 demonstration level;
-* implement a reusable C++ telemetry sender;
-* send real gameplay events from Unreal Engine to FastAPI;
-* prepare screenshots, architecture documentation, and a portfolio demonstration video.
+- create an Unreal Engine 5 demonstration level;
+- implement a reusable C++ telemetry sender;
+- send real gameplay events from Unreal Engine to FastAPI;
+- test end-to-end telemetry ingestion from the game;
+- add architecture diagrams and application screenshots;
+- prepare a portfolio demonstration video;
+- complete final documentation and deployment notes.
 
 ## Project Purpose
 
-This is a portfolio project focused on backend development, gameplay telemetry, QA automation, data analysis, and integration between game code and external development tools.
+This is a portfolio project focused on backend development, gameplay telemetry, QA automation, automated testing, continuous integration, containerization, data analysis, and integration between game code and external development tools.

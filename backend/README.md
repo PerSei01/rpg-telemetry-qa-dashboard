@@ -1,32 +1,32 @@
 # Backend
 
-FastAPI backend for RPG Telemetry & Quest QA Dashboard.
+FastAPI backend for the RPG Telemetry & Quest QA Dashboard.
 
-## Current Scope
+It receives gameplay telemetry, stores playtest sessions and events, validates quest progression, and generates Markdown bug reports for detected issues.
 
-* FastAPI application setup
-* PostgreSQL connection
-* SQLAlchemy ORM configuration
-* Database models:
-  * PlaytestSession
-  * TelemetryEvent
-  * DetectedIssue
-* Health check endpoint
-* Playtest session API
-* Telemetry event API
-* Quest state validation
-* Markdown bug report export
+## Current Features
+
+- PostgreSQL connection through SQLAlchemy;
+- playtest session creation and retrieval;
+- telemetry event ingestion;
+- structured JSON event payloads;
+- quest state validation;
+- automatic issue detection;
+- reproduction step generation;
+- Markdown bug report export;
+- isolated automated tests;
+- Docker runtime support.
 
 ## Run Locally
 
 Create and activate a virtual environment:
 
-```bash
+```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 ```
 
-Install dependencies:
+Install runtime dependencies:
 
 ```bash
 pip install -r requirements.txt
@@ -38,16 +38,37 @@ Create a `.env` file:
 DATABASE_URL=postgresql+psycopg://postgres:YOUR_PASSWORD@localhost:5432/rpg_telemetry_db
 ```
 
-Run the server:
+Start the server:
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-Open the interactive API documentation:
+Available URLs:
 
 ```text
-http://127.0.0.1:8000/docs
+API          http://127.0.0.1:8000
+API docs     http://127.0.0.1:8000/docs
+```
+
+## Run with Docker
+
+From the project root:
+
+```bash
+docker compose up --build
+```
+
+The backend will be available at:
+
+```text
+http://localhost:8000
+```
+
+Generate demo sessions inside the running backend container:
+
+```bash
+docker compose exec backend python scripts/generate_sessions.py
 ```
 
 ## Health Check
@@ -60,8 +81,7 @@ Expected response:
 
 ```json
 {
-  "status": "ok",
-  "database": "connected"
+  "status": "ok"
 }
 ```
 
@@ -75,7 +95,7 @@ Create a playtest session:
 POST /sessions
 ```
 
-Request body:
+Example request:
 
 ```json
 {
@@ -84,13 +104,13 @@ Request body:
 }
 ```
 
-List playtest sessions:
+List all sessions:
 
 ```http
 GET /sessions
 ```
 
-Get playtest session details:
+Get a session with its telemetry events and detected issues:
 
 ```http
 GET /sessions/{session_id}
@@ -104,12 +124,13 @@ Create a telemetry event:
 POST /events
 ```
 
-Request body:
+Example request:
 
 ```json
 {
   "session_id": 1,
   "event_type": "quest_started",
+  "timestamp": "2026-01-01T12:00:00Z",
   "area": "village",
   "quest_id": "missing_alchemist",
   "payload": {
@@ -118,31 +139,15 @@ Request body:
 }
 ```
 
-List events for a playtest session:
+List events belonging to a session:
 
 ```http
 GET /sessions/{session_id}/events
 ```
 
-## Generate Fake Gameplay Sessions
+### Quest Validation
 
-Make sure the backend server is running, then execute the generator from the `backend/` directory:
-
-```bash
-python scripts/generate_sessions.py
-```
-
-The script creates several demo playtest sessions:
-
-* normal quest run
-* player death run
-* FPS drop run
-* broken quest run
-* wrong reward run
-
-## Validate Playtest Session
-
-Run quest validation for a playtest session:
+Validate a recorded playtest session:
 
 ```http
 POST /sessions/{session_id}/validate
@@ -150,10 +155,16 @@ POST /sessions/{session_id}/validate
 
 The validator currently detects:
 
-* reward granted before quest completion
-* quest completed without required stages
+- rewards granted before quest completion;
+- quests completed without all required stages.
 
-Example response:
+Required stages are currently configured for the demonstration quest:
+
+```text
+missing_alchemist
+```
+
+Example validation response:
 
 ```json
 {
@@ -179,7 +190,9 @@ Example response:
 }
 ```
 
-## Export Bug Report
+Repeated validation replaces previous findings for the session instead of creating duplicate issues.
+
+### Bug Reports
 
 Generate a Markdown bug report for a detected issue:
 
@@ -187,19 +200,17 @@ Generate a Markdown bug report for a detected issue:
 GET /issues/{issue_id}/bug-report
 ```
 
-The endpoint returns a Markdown-formatted QA report containing:
+The response uses the `text/markdown` media type and contains:
 
-* issue title
-* severity
-* session ID
-* build version
-* quest ID
-* description
-* steps to reproduce
-* expected result
-* actual result
+- issue title and severity;
+- session and build information;
+- affected quest;
+- description;
+- reproduction steps;
+- expected result;
+- actual result.
 
-Example output:
+Example:
 
 ```md
 # Bug Report: Quest completed without required stages
@@ -230,3 +241,55 @@ Quest should only be completed after all required stages are completed.
 ## Actual Result
 Quest was completed while one or more required stages were missing.
 ```
+
+## Generate Demo Sessions
+
+With the backend running locally:
+
+```bash
+python scripts/generate_sessions.py
+```
+
+The generator creates:
+
+- a normal quest run;
+- a player death run;
+- an FPS drop run;
+- a broken quest run;
+- an invalid reward run.
+
+The broken sessions can then be validated through the API.
+
+## Run Tests
+
+Install development dependencies:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+Run the full backend test suite:
+
+```bash
+python -m pytest
+```
+
+Run tests with detailed output:
+
+```bash
+python -m pytest -v
+```
+
+The test suite covers:
+
+- health checks;
+- session creation and retrieval;
+- telemetry event ingestion;
+- missing resources;
+- valid quest progression;
+- missing required quest stages;
+- rewards granted before completion;
+- repeated validation;
+- Markdown bug report generation.
+
+Tests use an isolated in-memory SQLite database and do not modify the development PostgreSQL database.

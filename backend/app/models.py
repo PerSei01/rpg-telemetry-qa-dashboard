@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -48,7 +48,7 @@ class TelemetryEvent(Base):
     timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     area: Mapped[str | None] = mapped_column(String(100), nullable=True)
     quest_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    payload: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON().with_variant(JSONB(), "postgresql"), default=dict, nullable=False)
 
     session: Mapped["PlaytestSession"] = relationship(back_populates="events")
 
