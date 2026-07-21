@@ -105,34 +105,74 @@ jobs:
 
       - name: Check frontend
         run: |
-          curl \
-            --fail \
-            --silent \
-            --show-error \
-            --retry 20 \
-            --retry-delay 3 \
-            --retry-connrefused \
-            http://localhost:8080/
+          for attempt in {1..30}; do
+            rm -f /tmp/frontend.html
 
-      - name: Check frontend API proxy
-        run: |
-          curl \
-            --fail \
-            --silent \
-            --show-error \
-            --retry 20 \
-            --retry-delay 3 \
-            --retry-connrefused \
-            http://localhost:8080/api/health
+            if curl \
+              --fail \
+              --silent \
+              --show-error \
+              --connect-timeout 2 \
+              --max-time 5 \
+              http://localhost:8080/ \
+              --output /tmp/frontend.html \
+              && grep -q '<div id="root"></div>' /tmp/frontend.html; then
+              echo "Frontend is ready."
+              exit 0
+            fi
 
-      - name: Show container status
-        if: always()
-        run: docker compose ps --all
+            echo "Frontend is not ready yet: attempt ${attempt}/30."
+            sleep 2
+          done
 
-      - name: Show Docker logs on failure
-        if: failure()
-        run: docker compose logs --no-color
+          echo "::error::Frontend did not become ready within 60 seconds."
+          docker compose ps
+          docker compose logs frontend
+          exit 1
 
-      - name: Stop Docker stack
-        if: always()
-        run: docker compose down --volumes --remove-orphans
+            - name: Check frontend API proxy
+              run: |
+                curl \
+                  --fail \
+                  --silent \
+                  --show-error \
+                  --retry 20 \
+                  --retry-delay 3 \
+                  --retry-connrefused \
+                  http://localhost:8080/api/health
+
+            - name: Show container status
+              if: always()
+              run: docker compose ps --all
+
+            - name: Show Docker logs on failure
+              if: failure()
+              run: docker compose logs --no-color
+
+            - name: Stop Docker stack
+              if: always()
+              run: docker compose down --volumes --remove-orphans
+
+              - name: Check frontend API proxy
+          run: |
+            for attempt in {1..15}; do
+              if curl \
+                --fail \
+                --silent \
+                --show-error \
+                --connect-timeout 2 \
+                --max-time 5 \
+                http://localhost:8080/api/health \
+                | grep -q '"status":"ok"'; then
+                echo "Frontend API proxy is ready."
+                exit 0
+              fi
+
+              echo "Frontend API proxy is not ready yet: attempt ${attempt}/15."
+              sleep 2
+            done
+
+            echo "::error::Frontend API proxy did not become ready."
+            docker compose ps
+            docker compose logs frontend backend
+            exit 1
