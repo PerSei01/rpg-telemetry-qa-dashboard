@@ -4,10 +4,16 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import PlaytestSession, TelemetryEvent
 from app.schemas import TelemetryEventCreate, TelemetryEventRead
+from app.services.quest_validator import validate_session
 
 router = APIRouter(
     tags=["events"],
 )
+
+VALIDATION_TRIGGER_EVENT_TYPES = {
+    "quest_completed",
+    "reward_given",
+}
 
 
 @router.post(
@@ -40,6 +46,18 @@ def create_event(
     )
 
     db.add(telemetry_event)
+    db.flush()
+
+    if (
+        telemetry_event.quest_id
+        and telemetry_event.event_type
+        in VALIDATION_TRIGGER_EVENT_TYPES
+    ):
+        validate_session(
+            telemetry_event.session_id,
+            db,
+        )
+
     db.commit()
     db.refresh(telemetry_event)
 
@@ -69,7 +87,10 @@ def list_session_events(
     events = (
         db.query(TelemetryEvent)
         .filter(TelemetryEvent.session_id == session_id)
-        .order_by(TelemetryEvent.timestamp.asc())
+        .order_by(
+            TelemetryEvent.timestamp.asc(),
+            TelemetryEvent.id.asc(),
+        )
         .all()
     )
 

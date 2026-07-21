@@ -13,33 +13,49 @@ REQUIRED_STAGES_BY_QUEST = {
 }
 
 
-def validate_session(session_id: int, db: Session) -> list[DetectedIssue]:
+def validate_session(
+    session_id: int,
+    db: Session,
+) -> list[DetectedIssue]:
     clear_existing_issues(session_id, db)
 
     events = (
         db.query(TelemetryEvent)
         .filter(TelemetryEvent.session_id == session_id)
-        .order_by(TelemetryEvent.timestamp.asc())
+        .order_by(
+            TelemetryEvent.timestamp.asc(),
+            TelemetryEvent.id.asc(),
+        )
         .all()
     )
 
     created_issues: list[DetectedIssue] = []
 
-    created_issues.extend(validate_reward_timing(session_id, events, db))
-    created_issues.extend(validate_required_quest_stages(session_id, events, db))
+    created_issues.extend(
+        validate_reward_timing(session_id, events, db)
+    )
+    created_issues.extend(
+        validate_required_quest_stages(
+            session_id,
+            events,
+            db,
+        )
+    )
 
-    db.commit()
-
-    for issue in created_issues:
-        db.refresh(issue)
+    db.flush()
 
     return created_issues
 
 
-def clear_existing_issues(session_id: int, db: Session) -> None:
-    db.query(DetectedIssue).filter(
-        DetectedIssue.session_id == session_id,
-    ).delete()
+def clear_existing_issues(
+    session_id: int,
+    db: Session,
+) -> None:
+    (
+        db.query(DetectedIssue)
+        .filter(DetectedIssue.session_id == session_id)
+        .delete(synchronize_session=False)
+    )
 
 
 def validate_reward_timing(
@@ -90,33 +106,37 @@ def validate_required_quest_stages(
     completed_stages_by_quest: dict[str, set[str]] = {}
 
     for event in events:
-        if not event.quest_id:
-            continue
-
-        if event.event_type != "quest_stage_completed":
-            continue
-
-        stage = event.payload.get("stage")
-
-        if not stage:
-            continue
-
-        completed_stages_by_quest.setdefault(event.quest_id, set()).add(stage)
-
-    for event in events:
         quest_id = event.quest_id
 
         if not quest_id:
             continue
 
+        if event.event_type == "quest_stage_completed":
+            stage = event.payload.get("stage")
+
+            if stage:
+                completed_stages_by_quest.setdefault(
+                    quest_id,
+                    set(),
+                ).add(stage)
+
+            continue
+
         if event.event_type != "quest_completed":
             continue
 
-        required_stages = REQUIRED_STAGES_BY_QUEST.get(quest_id, [])
-        completed_stages = completed_stages_by_quest.get(quest_id, set())
+        required_stages = REQUIRED_STAGES_BY_QUEST.get(
+            quest_id,
+            [],
+        )
+        completed_stages = completed_stages_by_quest.get(
+            quest_id,
+            set(),
+        )
 
         missing_stages = [
-            stage for stage in required_stages
+            stage
+            for stage in required_stages
             if stage not in completed_stages
         ]
 
@@ -126,12 +146,16 @@ def validate_required_quest_stages(
                 severity="critical",
                 title="Quest completed without required stages",
                 description=(
-                    f"Quest '{quest_id}' was completed without required stages: "
+                    f"Quest '{quest_id}' was completed without "
+                    "required stages: "
                     f"{', '.join(missing_stages)}."
                 ),
                 quest_id=quest_id,
                 event_id=event.id,
-                reproduction_steps=build_reproduction_steps(events, event),
+                reproduction_steps=build_reproduction_steps(
+                    events,
+                    event,
+                ),
             )
 
             db.add(issue)

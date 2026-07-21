@@ -3,3 +3,17 @@ __pycache__/
 *.pyc
 .env
 !.env.example
+
+# Unreal Engine generated files
+unreal-demo/**/.vs/
+unreal-demo/**/Binaries/
+unreal-demo/**/DerivedDataCache/
+unreal-demo/**/Intermediate/
+unreal-demo/**/Saved/
+
+# Generated IDE files
+unreal-demo/**/*.sln
+unreal-demo/**/*.suo
+unreal-demo/**/*.sdf
+unreal-demo/**/*.opensdf
+unreal-demo/**/*.VC.db

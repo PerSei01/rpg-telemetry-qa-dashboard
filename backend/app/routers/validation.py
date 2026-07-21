@@ -33,6 +33,11 @@ def validate_playtest_session(
 
     issues = validate_session(session_id, db)
 
+    db.commit()
+
+    for issue in issues:
+        db.refresh(issue)
+
     return {
         "session_id": session_id,
         "issues_created": len(issues),

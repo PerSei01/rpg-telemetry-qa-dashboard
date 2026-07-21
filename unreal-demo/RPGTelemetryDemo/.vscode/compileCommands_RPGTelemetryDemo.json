@@ -1,0 +1,354 @@
+[
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\RPGTelemetryDemo.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\RPGTelemetryDemoCharacter.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\RPGTelemetryDemoGameMode.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\RPGTelemetryDemoPlayerController.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\TelemetrySubsystem.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\TelemetryTrigger.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\AI\\CombatAIController.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\AI\\CombatEnemy.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\AI\\CombatEnemySpawner.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\AI\\CombatStateTreeUtility.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\AI\\EnvQueryContext_Danger.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\AI\\EnvQueryContext_Player.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\Animation\\AnimNotify_CheckChargedAttack.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\Animation\\AnimNotify_CheckCombo.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\Animation\\AnimNotify_DoAttackTrace.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\CombatCharacter.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\CombatGameMode.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\CombatPlayerController.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\Gameplay\\CombatActivationVolume.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\Gameplay\\CombatCheckpointVolume.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\Gameplay\\CombatDamageableBox.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\Gameplay\\CombatDummy.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\Gameplay\\CombatLavaFloor.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\Interfaces\\CombatActivatable.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\Interfaces\\CombatAttacker.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\Interfaces\\CombatDamageable.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Combat\\UI\\CombatLifeBar.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Platforming\\Animation\\AnimNotify_EndDash.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Platforming\\PlatformingCharacter.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Platforming\\PlatformingGameMode.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_Platforming\\PlatformingPlayerController.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_SideScrolling\\AI\\SideScrollingAIController.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_SideScrolling\\AI\\SideScrollingNPC.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_SideScrolling\\AI\\SideScrollingStateTreeUtility.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_SideScrolling\\Gameplay\\SideScrollingJumpPad.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_SideScrolling\\Gameplay\\SideScrollingMovingPlatform.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_SideScrolling\\Gameplay\\SideScrollingPickup.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_SideScrolling\\Gameplay\\SideScrollingSoftPlatform.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_SideScrolling\\Interfaces\\SideScrollingInteractable.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_SideScrolling\\SideScrollingCameraManager.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_SideScrolling\\SideScrollingCharacter.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_SideScrolling\\SideScrollingGameMode.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_SideScrolling\\SideScrollingPlayerController.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	},
+	{
+		"file": "D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\Source\\RPGTelemetryDemo\\Variant_SideScrolling\\UI\\SideScrollingUI.cpp",
+		"arguments": [
+			"D:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
+			"@D:\\Projects\\rpg-telemetry-qa-dashboard\\unreal-demo\\RPGTelemetryDemo\\.vscode\\compileCommands_RPGTelemetryDemo\\RPGTelemetryDemo.0.rsp"
+		],
+		"directory": "E:\\Programs\\UE_5.8\\Engine\\Source"
+	}
+]

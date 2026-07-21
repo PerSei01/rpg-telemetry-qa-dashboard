@@ -156,8 +156,6 @@ def test_valid_quest_produces_no_issues(
         },
     )
 
-    validate_session(client, session["id"])
-
     issues = get_session_issues(
         client,
         session["id"],
@@ -172,8 +170,6 @@ def test_missing_required_stage_creates_critical_issue(
     session, completion_event = (
         create_broken_quest_session(client)
     )
-
-    validate_session(client, session["id"])
 
     issues = get_session_issues(
         client,
@@ -256,8 +252,6 @@ def test_reward_before_completion_creates_issue(
         },
     )
 
-    validate_session(client, session["id"])
-
     issues = get_session_issues(
         client,
         session["id"],
@@ -283,15 +277,56 @@ def test_reward_before_completion_creates_issue(
     assert issue["reproduction_steps"]
 
 
-def test_repeated_validation_does_not_duplicate_issues(
+def test_late_stages_do_not_repair_completed_quest(
     client: TestClient,
 ) -> None:
     session, completion_event = (
         create_broken_quest_session(client)
     )
 
+    for stage in [
+        "entered_cave",
+        "found_alchemist",
+    ]:
+        create_test_event(
+            client,
+            session_id=session["id"],
+            event_type="quest_stage_completed",
+            area="cave",
+            quest_id=QUEST_ID,
+            payload={
+                "stage": stage,
+            },
+        )
+
     validate_session(client, session["id"])
-    validate_session(client, session["id"])
+
+    issues = get_session_issues(
+        client,
+        session["id"],
+    )
+
+    matching_issues = [
+        issue
+        for issue in issues
+        if (
+            issue["event_id"] == completion_event["id"]
+            and issue["severity"] == "critical"
+            and issue["quest_id"] == QUEST_ID
+        )
+    ]
+
+    assert len(matching_issues) == 1, issues
+    assert "entered_cave" in matching_issues[0]["description"]
+    assert "found_alchemist" in matching_issues[0]["description"]
+
+
+def test_repeated_validation_does_not_duplicate_issues(
+    client: TestClient,
+) -> None:
+    session, completion_event = (
+        create_broken_quest_session(client)
+    )
 
     issues = get_session_issues(
         client,
