@@ -17,3 +17,8 @@ unreal-demo/**/*.suo
 unreal-demo/**/*.sdf
 unreal-demo/**/*.opensdf
 unreal-demo/**/*.VC.db
+unreal-demo/**/.vscode/
+unreal-demo/**/.ignore
+unreal-demo/**/*.sln
+unreal-demo/**/*.slnx
+unreal-demo/**/*.code-workspace
