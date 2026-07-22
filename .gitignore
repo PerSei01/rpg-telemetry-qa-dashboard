@@ -22,3 +22,20 @@ unreal-demo/**/.ignore
 unreal-demo/**/*.sln
 unreal-demo/**/*.slnx
 unreal-demo/**/*.code-workspace
+
+# Removed Unreal template variants
+/unreal-demo/RPGTelemetryDemo/Content/Variant_Combat/
+/unreal-demo/RPGTelemetryDemo/Content/Variant_Platforming/
+/unreal-demo/RPGTelemetryDemo/Content/Variant_SideScrolling/
+
+/unreal-demo/RPGTelemetryDemo/Content/__ExternalActors__/Variant_Combat/
+/unreal-demo/RPGTelemetryDemo/Content/__ExternalActors__/Variant_Platforming/
+/unreal-demo/RPGTelemetryDemo/Content/__ExternalActors__/Variant_SideScrolling/
+
+/unreal-demo/RPGTelemetryDemo/Content/__ExternalObjects__/Variant_Combat/
+/unreal-demo/RPGTelemetryDemo/Content/__ExternalObjects__/Variant_Platforming/
+/unreal-demo/RPGTelemetryDemo/Content/__ExternalObjects__/Variant_SideScrolling/
+
+/unreal-demo/RPGTelemetryDemo/Source/RPGTelemetryDemo/Variant_Combat/
+/unreal-demo/RPGTelemetryDemo/Source/RPGTelemetryDemo/Variant_Platforming/
+/unreal-demo/RPGTelemetryDemo/Source/RPGTelemetryDemo/Variant_SideScrolling/

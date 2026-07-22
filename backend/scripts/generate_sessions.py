@@ -66,9 +66,32 @@ def create_event(
     time.sleep(0.05)
     return event
 
+def start_session(
+    player_name: str,
+    build_version: str = DEFAULT_BUILD_VERSION,
+) -> dict[str, Any]:
+    session = create_session(
+        player_name,
+        build_version,
+    )
+
+    create_event(
+        session["id"],
+        "game_started",
+    )
+
+    return session
+
+
+def end_session(session_id: int) -> None:
+    create_event(
+        session_id,
+        "game_ended",
+    )
+
 
 def generate_normal_quest_run() -> None:
-    session = create_session("NormalQuestRun")
+    session = start_session("NormalQuestRun")
     session_id = session["id"]
     quest_id = "missing_alchemist"
 
@@ -163,9 +186,11 @@ def generate_normal_quest_run() -> None:
         },
     )
 
+    end_session(session_id)
+
 
 def generate_player_death_run() -> None:
-    session = create_session("PlayerDeathRun")
+    session = start_session("PlayerDeathRun")
     session_id = session["id"]
     quest_id = "missing_alchemist"
 
@@ -204,9 +229,11 @@ def generate_player_death_run() -> None:
         },
     )
 
+    end_session(session_id)
+
 
 def generate_fps_drop_run() -> None:
-    session = create_session("FpsDropRun")
+    session = start_session("FpsDropRun")
     session_id = session["id"]
     quest_id = "missing_alchemist"
 
@@ -249,9 +276,11 @@ def generate_fps_drop_run() -> None:
         },
     )
 
+    end_session(session_id)
+
 
 def generate_broken_quest_run() -> None:
-    session = create_session("BrokenQuestRun")
+    session = start_session("BrokenQuestRun")
     session_id = session["id"]
     quest_id = "missing_alchemist"
 
@@ -294,9 +323,11 @@ def generate_broken_quest_run() -> None:
         },
     )
 
+    end_session(session_id)
+
 
 def generate_wrong_reward_run() -> None:
-    session = create_session("WrongRewardRun")
+    session = start_session("WrongRewardRun")
     session_id = session["id"]
     quest_id = "missing_alchemist"
 
@@ -325,6 +356,8 @@ def generate_wrong_reward_run() -> None:
             "note": "This reward is intentionally granted before quest completion.",
         },
     )
+
+    end_session(session_id)
 
 
 def main() -> None:

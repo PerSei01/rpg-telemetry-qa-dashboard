@@ -1,21 +1,39 @@
 #include "TelemetrySubsystem.h"
 
 #include "Dom/JsonObject.h"
+#include "HttpManager.h"
 #include "HttpModule.h"
-#include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 #include "Serialization/JsonWriter.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogTelemetry, Log, All);
+DEFINE_LOG_CATEGORY_STATIC(
+    LogTelemetrySubsystem,
+    Log,
+    All
+);
 
-void UTelemetrySubsystem::Initialize(FSubsystemCollectionBase& Collection)
+void UTelemetrySubsystem::Initialize(
+    FSubsystemCollectionBase& Collection
+)
 {
     Super::Initialize(Collection);
 
+    CurrentSessionId = INDEX_NONE;
+    bSessionRequestInFlight = false;
+    bSessionEnded = false;
+    PendingEvents.Reset();
+
     UE_LOG(
-        LogTelemetry,
-        Log,
+        LogTelemetrySubsystem,
+        Display,
         TEXT("Telemetry subsystem initialized.")
+    );
+
+    SendTelemetryEvent(
+        TEXT("game_started"),
+        TEXT("third_person_demo"),
+        TEXT(""),
+        TEXT("")
     );
 
     CheckBackendHealth();
@@ -24,29 +42,55 @@ void UTelemetrySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 void UTelemetrySubsystem::Deinitialize()
 {
     UE_LOG(
-        LogTelemetry,
-        Log,
-        TEXT("Telemetry subsystem deinitialized. Session ID: %d"),
-        CurrentSessionId
+        LogTelemetrySubsystem,
+        Display,
+        TEXT("Telemetry subsystem is shutting down.")
     );
 
+    if (
+        CurrentSessionId != INDEX_NONE &&
+        !bSessionEnded
+    )
+    {
+        EndPlaytestSession();
+
+        FHttpModule::Get()
+            .GetHttpManager()
+            .Flush(EHttpFlushReason::FullFlush);
+    }
+    else if (
+        CurrentSessionId == INDEX_NONE &&
+        !PendingEvents.IsEmpty()
+    )
+    {
+        UE_LOG(
+            LogTelemetrySubsystem,
+            Warning,
+            TEXT(
+                "Telemetry session was not created before "
+                "shutdown. %d queued event(s) were not sent."
+            ),
+            PendingEvents.Num()
+        );
+    }
+
+    PendingEvents.Reset();
     CurrentSessionId = INDEX_NONE;
-    bSessionRequestInFlight = false;
 
     Super::Deinitialize();
 }
 
 void UTelemetrySubsystem::CheckBackendHealth()
 {
-    const FString HealthUrl = BackendBaseUrl + TEXT("/health");
+    const TSharedRef<IHttpRequest, ESPMode::ThreadSafe>
+        Request =
+            FHttpModule::Get().CreateRequest();
 
-    TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request =
-        FHttpModule::Get().CreateRequest();
+    Request->SetURL(
+        BackendBaseUrl + TEXT("/health")
+    );
 
-    Request->SetURL(HealthUrl);
     Request->SetVerb(TEXT("GET"));
-    Request->SetHeader(TEXT("Accept"), TEXT("application/json"));
-    Request->SetTimeout(5.0f);
 
     Request->OnProcessRequestComplete().BindUObject(
         this,
@@ -54,18 +98,405 @@ void UTelemetrySubsystem::CheckBackendHealth()
     );
 
     UE_LOG(
-        LogTelemetry,
-        Log,
-        TEXT("Sending backend health request to %s"),
-        *HealthUrl
+        LogTelemetrySubsystem,
+        Display,
+        TEXT("Checking backend health.")
+    );
+
+    Request->ProcessRequest();
+}
+
+void UTelemetrySubsystem::StartPlaytestSession()
+{
+    if (CurrentSessionId != INDEX_NONE)
+    {
+        UE_LOG(
+            LogTelemetrySubsystem,
+            Warning,
+            TEXT(
+                "A playtest session already exists. "
+                "Session ID: %d."
+            ),
+            CurrentSessionId
+        );
+
+        return;
+    }
+
+    if (bSessionRequestInFlight)
+    {
+        UE_LOG(
+            LogTelemetrySubsystem,
+            Warning,
+            TEXT(
+                "A playtest session request is already "
+                "in progress."
+            )
+        );
+
+        return;
+    }
+
+    bSessionRequestInFlight = true;
+
+    const TSharedRef<FJsonObject> JsonObject =
+        MakeShared<FJsonObject>();
+
+    JsonObject->SetStringField(
+        TEXT("player_name"),
+        TEXT("UE5Player")
+    );
+
+    JsonObject->SetStringField(
+        TEXT("build_version"),
+        TEXT("ue5-demo-0.1.0")
+    );
+
+    FString RequestBody;
+
+    const TSharedRef<TJsonWriter<>> Writer =
+        TJsonWriterFactory<>::Create(&RequestBody);
+
+    FJsonSerializer::Serialize(
+        JsonObject,
+        Writer
+    );
+
+    const TSharedRef<IHttpRequest, ESPMode::ThreadSafe>
+        Request =
+            FHttpModule::Get().CreateRequest();
+
+    Request->SetURL(
+        BackendBaseUrl + TEXT("/sessions")
+    );
+
+    Request->SetVerb(TEXT("POST"));
+
+    Request->SetHeader(
+        TEXT("Content-Type"),
+        TEXT("application/json")
+    );
+
+    Request->SetContentAsString(RequestBody);
+
+    Request->OnProcessRequestComplete().BindUObject(
+        this,
+        &UTelemetrySubsystem::
+            HandleCreateSessionResponse
+    );
+
+    UE_LOG(
+        LogTelemetrySubsystem,
+        Display,
+        TEXT("Creating a new playtest session.")
+    );
+
+    if (!Request->ProcessRequest())
+    {
+        bSessionRequestInFlight = false;
+
+        UE_LOG(
+            LogTelemetrySubsystem,
+            Error,
+            TEXT(
+                "Failed to start the playtest "
+                "session request."
+            )
+        );
+    }
+}
+
+void UTelemetrySubsystem::SendTelemetryEvent(
+    const FString& EventType,
+    const FString& Area,
+    const FString& QuestId,
+    const FString& Stage
+)
+{
+    if (EventType.IsEmpty())
+    {
+        UE_LOG(
+            LogTelemetrySubsystem,
+            Warning,
+            TEXT(
+                "Cannot send a telemetry event "
+                "without an event type."
+            )
+        );
+
+        return;
+    }
+
+    if (
+        bSessionEnded &&
+        EventType != TEXT("game_ended")
+    )
+    {
+        UE_LOG(
+            LogTelemetrySubsystem,
+            Warning,
+            TEXT(
+                "Ignoring telemetry event '%s': "
+                "the playtest session has ended."
+            ),
+            *EventType
+        );
+
+        return;
+    }
+
+    const FString Timestamp =
+        FDateTime::UtcNow().ToIso8601();
+
+    if (CurrentSessionId == INDEX_NONE)
+    {
+        PendingEvents.Add(
+            {
+                EventType,
+                Area,
+                QuestId,
+                Stage,
+                Timestamp
+            }
+        );
+
+        UE_LOG(
+            LogTelemetrySubsystem,
+            Display,
+            TEXT(
+                "Queued telemetry event '%s' until "
+                "a playtest session is available."
+            ),
+            *EventType
+        );
+
+        return;
+    }
+
+    SubmitTelemetryEvent(
+        EventType,
+        Area,
+        QuestId,
+        Stage,
+        Timestamp
+    );
+}
+
+void UTelemetrySubsystem::EndPlaytestSession()
+{
+    if (bSessionEnded)
+    {
+        UE_LOG(
+            LogTelemetrySubsystem,
+            Display,
+            TEXT(
+                "Playtest session %d has already ended."
+            ),
+            CurrentSessionId
+        );
+
+        return;
+    }
+
+    if (CurrentSessionId == INDEX_NONE)
+    {
+        UE_LOG(
+            LogTelemetrySubsystem,
+            Warning,
+            TEXT(
+                "Cannot end the playtest session: "
+                "no session ID is available."
+            )
+        );
+
+        return;
+    }
+
+    bSessionEnded = true;
+
+    SendTelemetryEvent(
+        TEXT("game_ended"),
+        TEXT("third_person_demo"),
+        TEXT(""),
+        TEXT("")
+    );
+
+    UE_LOG(
+        LogTelemetrySubsystem,
+        Display,
+        TEXT(
+            "Ending playtest session %d."
+        ),
+        CurrentSessionId
+    );
+}
+
+void UTelemetrySubsystem::FlushPendingEvents()
+{
+    if (
+        CurrentSessionId == INDEX_NONE ||
+        PendingEvents.IsEmpty()
+    )
+    {
+        return;
+    }
+
+    TArray<FPendingTelemetryEvent> EventsToFlush =
+        MoveTemp(PendingEvents);
+
+    PendingEvents.Reset();
+
+    UE_LOG(
+        LogTelemetrySubsystem,
+        Display,
+        TEXT(
+            "Sending %d queued telemetry event(s)."
+        ),
+        EventsToFlush.Num()
+    );
+
+    for (
+        const FPendingTelemetryEvent& Event
+        : EventsToFlush
+    )
+    {
+        SubmitTelemetryEvent(
+            Event.EventType,
+            Event.Area,
+            Event.QuestId,
+            Event.Stage,
+            Event.Timestamp
+        );
+    }
+}
+
+void UTelemetrySubsystem::SubmitTelemetryEvent(
+    const FString& EventType,
+    const FString& Area,
+    const FString& QuestId,
+    const FString& Stage,
+    const FString& Timestamp
+)
+{
+    if (CurrentSessionId == INDEX_NONE)
+    {
+        UE_LOG(
+            LogTelemetrySubsystem,
+            Error,
+            TEXT(
+                "Cannot submit telemetry event '%s': "
+                "no session ID is available."
+            ),
+            *EventType
+        );
+
+        return;
+    }
+
+    const TSharedRef<FJsonObject> JsonObject =
+        MakeShared<FJsonObject>();
+
+    JsonObject->SetNumberField(
+        TEXT("session_id"),
+        CurrentSessionId
+    );
+
+    JsonObject->SetStringField(
+        TEXT("event_type"),
+        EventType
+    );
+
+    JsonObject->SetStringField(
+        TEXT("timestamp"),
+        Timestamp
+    );
+
+    if (!Area.IsEmpty())
+    {
+        JsonObject->SetStringField(
+            TEXT("area"),
+            Area
+        );
+    }
+
+    if (!QuestId.IsEmpty())
+    {
+        JsonObject->SetStringField(
+            TEXT("quest_id"),
+            QuestId
+        );
+    }
+
+    const TSharedRef<FJsonObject> PayloadObject =
+        MakeShared<FJsonObject>();
+
+    if (!Stage.IsEmpty())
+    {
+        PayloadObject->SetStringField(
+            TEXT("stage"),
+            Stage
+        );
+    }
+
+    JsonObject->SetObjectField(
+        TEXT("payload"),
+        PayloadObject
+    );
+
+    FString RequestBody;
+
+    const TSharedRef<TJsonWriter<>> Writer =
+        TJsonWriterFactory<>::Create(&RequestBody);
+
+    FJsonSerializer::Serialize(
+        JsonObject,
+        Writer
+    );
+
+    const TSharedRef<IHttpRequest, ESPMode::ThreadSafe>
+        Request =
+            FHttpModule::Get().CreateRequest();
+
+    Request->SetURL(
+        BackendBaseUrl + TEXT("/events")
+    );
+
+    Request->SetVerb(TEXT("POST"));
+
+    Request->SetHeader(
+        TEXT("Content-Type"),
+        TEXT("application/json")
+    );
+
+    Request->SetContentAsString(RequestBody);
+
+    Request->OnProcessRequestComplete().BindUObject(
+        this,
+        &UTelemetrySubsystem::
+            HandleCreateEventResponse
+    );
+
+    UE_LOG(
+        LogTelemetrySubsystem,
+        Display,
+        TEXT(
+            "Sending telemetry event '%s' "
+            "for session %d."
+        ),
+        *EventType,
+        CurrentSessionId
     );
 
     if (!Request->ProcessRequest())
     {
         UE_LOG(
-            LogTelemetry,
+            LogTelemetrySubsystem,
             Error,
-            TEXT("Failed to start backend health request.")
+            TEXT(
+                "Failed to start request for "
+                "telemetry event '%s'."
+            ),
+            *EventType
         );
     }
 }
@@ -76,134 +507,51 @@ void UTelemetrySubsystem::HandleHealthResponse(
     bool bWasSuccessful
 )
 {
-    if (!bWasSuccessful || !Response.IsValid())
+    if (
+        !bWasSuccessful ||
+        !Response.IsValid()
+    )
     {
         UE_LOG(
-            LogTelemetry,
+            LogTelemetrySubsystem,
             Error,
-            TEXT("Backend health request failed. No valid HTTP response received.")
+            TEXT(
+                "Backend health request failed. "
+                "Make sure FastAPI is running."
+            )
         );
 
         return;
     }
 
-    const int32 StatusCode = Response->GetResponseCode();
-    const FString ResponseBody = Response->GetContentAsString();
+    const int32 ResponseCode =
+        Response->GetResponseCode();
 
-    if (StatusCode >= 200 && StatusCode < 300)
+    if (!EHttpResponseCodes::IsOk(ResponseCode))
     {
         UE_LOG(
-            LogTelemetry,
-            Display,
-            TEXT("Backend health check succeeded. HTTP %d. Response: %s"),
-            StatusCode,
-            *ResponseBody
+            LogTelemetrySubsystem,
+            Error,
+            TEXT(
+                "Backend health request returned "
+                "HTTP %d."
+            ),
+            ResponseCode
         );
-
-        StartPlaytestSession();
 
         return;
     }
 
     UE_LOG(
-        LogTelemetry,
-        Error,
-        TEXT("Backend health check returned HTTP %d. Response: %s"),
-        StatusCode,
-        *ResponseBody
-    );
-}
-
-void UTelemetrySubsystem::StartPlaytestSession()
-{
-    if (CurrentSessionId != INDEX_NONE)
-    {
-        UE_LOG(
-            LogTelemetry,
-            Warning,
-            TEXT("A playtest session already exists. Session ID: %d"),
-            CurrentSessionId
-        );
-
-        return;
-    }
-
-    if (bSessionRequestInFlight)
-    {
-        UE_LOG(
-            LogTelemetry,
-            Warning,
-            TEXT("A playtest session request is already in progress.")
-        );
-
-        return;
-    }
-
-    const FString SessionsUrl = BackendBaseUrl + TEXT("/sessions");
-
-    TSharedRef<FJsonObject> RequestJson = MakeShared<FJsonObject>();
-
-    RequestJson->SetStringField(
-        TEXT("player_name"),
-        TEXT("UE5Player")
+        LogTelemetrySubsystem,
+        Display,
+        TEXT(
+            "Backend is healthy. Response: %s"
+        ),
+        *Response->GetContentAsString()
     );
 
-    RequestJson->SetStringField(
-        TEXT("build_version"),
-        TEXT("ue5-demo-0.1.0")
-    );
-
-    FString RequestBody;
-
-    TSharedRef<TJsonWriter<>> Writer =
-        TJsonWriterFactory<>::Create(&RequestBody);
-
-    if (!FJsonSerializer::Serialize(RequestJson, Writer))
-    {
-        UE_LOG(
-            LogTelemetry,
-            Error,
-            TEXT("Failed to serialize the playtest session request.")
-        );
-
-        return;
-    }
-
-    TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request =
-        FHttpModule::Get().CreateRequest();
-
-    Request->SetURL(SessionsUrl);
-    Request->SetVerb(TEXT("POST"));
-    Request->SetHeader(TEXT("Accept"), TEXT("application/json"));
-    Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
-    Request->SetContentAsString(RequestBody);
-    Request->SetTimeout(5.0f);
-
-    Request->OnProcessRequestComplete().BindUObject(
-        this,
-        &UTelemetrySubsystem::HandleCreateSessionResponse
-    );
-
-    UE_LOG(
-        LogTelemetry,
-        Log,
-        TEXT("Creating playtest session at %s. Body: %s"),
-        *SessionsUrl,
-        *RequestBody
-    );
-
-    bSessionRequestInFlight = true;
-
-    if (!Request->ProcessRequest())
-    {
-        bSessionRequestInFlight = false;
-
-        UE_LOG(
-            LogTelemetry,
-            Error,
-            TEXT("Failed to start the playtest session request.")
-        );
-    }
+    StartPlaytestSession();
 }
 
 void UTelemetrySubsystem::HandleCreateSessionResponse(
@@ -214,214 +562,104 @@ void UTelemetrySubsystem::HandleCreateSessionResponse(
 {
     bSessionRequestInFlight = false;
 
-    if (!bWasSuccessful || !Response.IsValid())
-    {
-        UE_LOG(
-            LogTelemetry,
-            Error,
-            TEXT("Playtest session request failed. No valid HTTP response received.")
-        );
-
-        return;
-    }
-
-    const int32 StatusCode = Response->GetResponseCode();
-    const FString ResponseBody = Response->GetContentAsString();
-
-    if (StatusCode < 200 || StatusCode >= 300)
-    {
-        UE_LOG(
-            LogTelemetry,
-            Error,
-            TEXT("Playtest session request returned HTTP %d. Response: %s"),
-            StatusCode,
-            *ResponseBody
-        );
-
-        return;
-    }
-
-    TSharedPtr<FJsonObject> ResponseJson;
-
-    const TSharedRef<TJsonReader<>> Reader =
-        TJsonReaderFactory<>::Create(ResponseBody);
-
     if (
-        !FJsonSerializer::Deserialize(Reader, ResponseJson) ||
-        !ResponseJson.IsValid()
+        !bWasSuccessful ||
+        !Response.IsValid()
     )
     {
         UE_LOG(
-            LogTelemetry,
+            LogTelemetrySubsystem,
             Error,
-            TEXT("Failed to parse playtest session response: %s"),
-            *ResponseBody
-        );
-
-        return;
-    }
-
-    if (!ResponseJson->HasField(TEXT("id")))
-    {
-        UE_LOG(
-            LogTelemetry,
-            Error,
-            TEXT("Playtest session response does not contain an ID: %s"),
-            *ResponseBody
-        );
-
-        return;
-    }
-
-    CurrentSessionId = ResponseJson->GetIntegerField(TEXT("id"));
-
-    UE_LOG(
-        LogTelemetry,
-        Display,
-        TEXT("Playtest session created successfully. Session ID: %d"),
-        CurrentSessionId
-    );
-
-    SendTelemetryEvent(
-    TEXT("game_started"),
-    TEXT("third_person_demo"),
-    TEXT(""),
-    TEXT("")
-    );
-}
-
-void UTelemetrySubsystem::SendTelemetryEvent(
-    const FString& EventType,
-    const FString& Area,
-    const FString& QuestId,
-    const FString& Stage
-)
-{
-    if (CurrentSessionId == INDEX_NONE)
-    {
-        UE_LOG(
-            LogTelemetry,
-            Warning,
             TEXT(
-                "Cannot send telemetry event '%s': "
-                "no active playtest session exists."
-            ),
-            *EventType
+                "Playtest session request failed."
+            )
         );
 
         return;
     }
 
-    if (EventType.IsEmpty())
+    const int32 ResponseCode =
+        Response->GetResponseCode();
+
+    if (!EHttpResponseCodes::IsOk(ResponseCode))
     {
         UE_LOG(
-            LogTelemetry,
+            LogTelemetrySubsystem,
             Error,
-            TEXT("Cannot send a telemetry event with an empty event type.")
+            TEXT(
+                "Playtest session request returned "
+                "HTTP %d. Response: %s"
+            ),
+            ResponseCode,
+            *Response->GetContentAsString()
         );
 
         return;
     }
 
-    const FString EventsUrl = BackendBaseUrl + TEXT("/events");
+    TSharedPtr<FJsonObject> ResponseObject;
 
-    TSharedRef<FJsonObject> RequestJson = MakeShared<FJsonObject>();
+    const TSharedRef<TJsonReader<>> Reader =
+        TJsonReaderFactory<>::Create(
+            Response->GetContentAsString()
+        );
 
-    RequestJson->SetNumberField(
-        TEXT("session_id"),
+    if (
+        !FJsonSerializer::Deserialize(
+            Reader,
+            ResponseObject
+        ) ||
+        !ResponseObject.IsValid()
+    )
+    {
+        UE_LOG(
+            LogTelemetrySubsystem,
+            Error,
+            TEXT(
+                "Could not parse the playtest "
+                "session response."
+            )
+        );
+
+        return;
+    }
+
+    double SessionIdValue = 0.0;
+
+    if (
+        !ResponseObject->TryGetNumberField(
+            TEXT("id"),
+            SessionIdValue
+        )
+    )
+    {
+        UE_LOG(
+            LogTelemetrySubsystem,
+            Error,
+            TEXT(
+                "Playtest session response did not "
+                "contain a valid session ID."
+            )
+        );
+
+        return;
+    }
+
+    CurrentSessionId =
+        static_cast<int32>(SessionIdValue);
+
+    bSessionEnded = false;
+
+    UE_LOG(
+        LogTelemetrySubsystem,
+        Display,
+        TEXT(
+            "Created playtest session %d."
+        ),
         CurrentSessionId
     );
 
-    RequestJson->SetStringField(
-        TEXT("event_type"),
-        EventType
-    );
-
-    RequestJson->SetStringField(
-        TEXT("timestamp"),
-        FDateTime::UtcNow().ToIso8601()
-    );
-
-    if (!Area.IsEmpty())
-    {
-        RequestJson->SetStringField(
-            TEXT("area"),
-            Area
-        );
-    }
-
-    if (!QuestId.IsEmpty())
-    {
-        RequestJson->SetStringField(
-            TEXT("quest_id"),
-            QuestId
-        );
-    }
-
-    TSharedRef<FJsonObject> PayloadJson = MakeShared<FJsonObject>();
-
-    if (!Stage.IsEmpty())
-    {
-        PayloadJson->SetStringField(
-            TEXT("stage"),
-            Stage
-        );
-    }
-
-    RequestJson->SetObjectField(
-        TEXT("payload"),
-        PayloadJson
-    );
-
-    FString RequestBody;
-
-    TSharedRef<TJsonWriter<>> Writer =
-        TJsonWriterFactory<>::Create(&RequestBody);
-
-    if (!FJsonSerializer::Serialize(RequestJson, Writer))
-    {
-        UE_LOG(
-            LogTelemetry,
-            Error,
-            TEXT("Failed to serialize telemetry event '%s'."),
-            *EventType
-        );
-
-        return;
-    }
-
-    TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request =
-        FHttpModule::Get().CreateRequest();
-
-    Request->SetURL(EventsUrl);
-    Request->SetVerb(TEXT("POST"));
-    Request->SetHeader(TEXT("Accept"), TEXT("application/json"));
-    Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
-    Request->SetContentAsString(RequestBody);
-    Request->SetTimeout(5.0f);
-
-    Request->OnProcessRequestComplete().BindUObject(
-        this,
-        &UTelemetrySubsystem::HandleCreateEventResponse
-    );
-
-    UE_LOG(
-        LogTelemetry,
-        Log,
-        TEXT("Sending telemetry event '%s'. Body: %s"),
-        *EventType,
-        *RequestBody
-    );
-
-    if (!Request->ProcessRequest())
-    {
-        UE_LOG(
-            LogTelemetry,
-            Error,
-            TEXT("Failed to start telemetry event request '%s'."),
-            *EventType
-        );
-    }
+    FlushPendingEvents();
 }
 
 void UTelemetrySubsystem::HandleCreateEventResponse(
@@ -430,73 +668,77 @@ void UTelemetrySubsystem::HandleCreateEventResponse(
     bool bWasSuccessful
 )
 {
-    if (!bWasSuccessful || !Response.IsValid())
-    {
-        UE_LOG(
-            LogTelemetry,
-            Error,
-            TEXT(
-                "Telemetry event request failed. "
-                "No valid HTTP response received."
-            )
-        );
-
-        return;
-    }
-
-    const int32 StatusCode = Response->GetResponseCode();
-    const FString ResponseBody = Response->GetContentAsString();
-
-    if (StatusCode < 200 || StatusCode >= 300)
-    {
-        UE_LOG(
-            LogTelemetry,
-            Error,
-            TEXT(
-                "Telemetry event request returned HTTP %d. "
-                "Response: %s"
-            ),
-            StatusCode,
-            *ResponseBody
-        );
-
-        return;
-    }
-
-    TSharedPtr<FJsonObject> ResponseJson;
-
-    const TSharedRef<TJsonReader<>> Reader =
-        TJsonReaderFactory<>::Create(ResponseBody);
-
     if (
-        FJsonSerializer::Deserialize(Reader, ResponseJson) &&
-        ResponseJson.IsValid() &&
-        ResponseJson->HasField(TEXT("id"))
+        !bWasSuccessful ||
+        !Response.IsValid()
     )
     {
-        const int32 EventId =
-            ResponseJson->GetIntegerField(TEXT("id"));
-
         UE_LOG(
-            LogTelemetry,
+            LogTelemetrySubsystem,
+            Error,
+            TEXT("Telemetry event request failed.")
+        );
+
+        return;
+    }
+
+    const int32 ResponseCode =
+        Response->GetResponseCode();
+
+    if (!EHttpResponseCodes::IsOk(ResponseCode))
+    {
+        UE_LOG(
+            LogTelemetrySubsystem,
+            Error,
+            TEXT(
+                "Telemetry event request returned "
+                "HTTP %d. Response: %s"
+            ),
+            ResponseCode,
+            *Response->GetContentAsString()
+        );
+
+        return;
+    }
+
+    TSharedPtr<FJsonObject> ResponseObject;
+
+    const TSharedRef<TJsonReader<>> Reader =
+        TJsonReaderFactory<>::Create(
+            Response->GetContentAsString()
+        );
+
+    double EventIdValue = 0.0;
+
+    if (
+        FJsonSerializer::Deserialize(
+            Reader,
+            ResponseObject
+        ) &&
+        ResponseObject.IsValid() &&
+        ResponseObject->TryGetNumberField(
+            TEXT("id"),
+            EventIdValue
+        )
+    )
+    {
+        UE_LOG(
+            LogTelemetrySubsystem,
             Display,
             TEXT(
-                "Telemetry event created successfully. "
-                "Event ID: %d"
+                "Telemetry event created. Event ID: %d."
             ),
-            EventId
+            static_cast<int32>(EventIdValue)
         );
 
         return;
     }
 
     UE_LOG(
-        LogTelemetry,
+        LogTelemetrySubsystem,
         Display,
         TEXT(
-            "Telemetry event created successfully. "
-            "Response: %s"
-        ),
-        *ResponseBody
+            "Telemetry event created successfully."
+        )
     );
 }

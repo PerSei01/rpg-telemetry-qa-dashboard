@@ -22,6 +22,7 @@ class PlaytestSessionRead(BaseModel):
 class TelemetryEventCreate(BaseModel):
     session_id: int
     event_type: str = Field(..., min_length=1, max_length=100)
+    timestamp: datetime | None = None
     area: str | None = Field(default=None, max_length=100)
     quest_id: str | None = Field(default=None, max_length=100)
     payload: dict[str, Any] = Field(default_factory=dict)
@@ -63,7 +64,8 @@ class DetectedIssueRead(BaseModel):
 
         if isinstance(value, str):
             return [
-                line for line in value.splitlines()
+                line
+                for line in value.splitlines()
                 if line.strip()
             ]
 
@@ -71,8 +73,12 @@ class DetectedIssueRead(BaseModel):
 
 
 class PlaytestSessionDetail(PlaytestSessionRead):
-    events: list[TelemetryEventRead] = []
-    detected_issues: list[DetectedIssueRead] = []
+    events: list[TelemetryEventRead] = Field(
+        default_factory=list,
+    )
+    detected_issues: list[DetectedIssueRead] = Field(
+        default_factory=list,
+    )
 
 
 class ValidationResult(BaseModel):

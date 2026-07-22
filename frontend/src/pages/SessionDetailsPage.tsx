@@ -17,6 +17,37 @@ function formatDate(dateValue: string): string {
   }).format(new Date(dateValue));
 }
 
+function formatDuration(
+  startedAt: string,
+  endedAt: string,
+): string {
+  const totalSeconds = Math.max(
+    0,
+    Math.floor(
+      (
+        new Date(endedAt).getTime()
+        - new Date(startedAt).getTime()
+      ) / 1000,
+    ),
+  );
+
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor(
+    (totalSeconds % 3600) / 60,
+  );
+  const seconds = totalSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}h ${minutes}m ${seconds}s`;
+  }
+
+  if (minutes > 0) {
+    return `${minutes}m ${seconds}s`;
+  }
+
+  return `${seconds}s`;
+}
+
 function formatEventType(eventType: string): string {
   return eventType
     .split("_")
@@ -38,6 +69,7 @@ function getEventCategory(eventType: string): string {
   }
 
   if (
+    eventType === "game_ended" ||
     eventType === "quest_completed" ||
     eventType === "quest_stage_completed" ||
     eventType === "reward_given"
@@ -46,6 +78,7 @@ function getEventCategory(eventType: string): string {
   }
 
   if (
+    eventType === "game_started" ||
     eventType === "quest_started" ||
     eventType === "entered_area" ||
     eventType === "dialogue_choice_selected"
@@ -303,7 +336,9 @@ export function SessionDetailsPage() {
       <section className="page">
         <div className="status-panel status-panel--error">
           <strong>Could not load session</strong>
-          <span>{error ?? "Playtest session was not found."}</span>
+          <span>
+            {error ?? "Playtest session was not found."}
+          </span>
 
           <Link className="text-link" to="/sessions">
             Return to sessions
@@ -312,6 +347,15 @@ export function SessionDetailsPage() {
       </section>
     );
   }
+
+  const isCompleted = session.ended_at !== null;
+
+  const duration = session.ended_at
+    ? formatDuration(
+      session.started_at,
+      session.ended_at,
+    )
+    : null;
 
   return (
     <section className="page">
@@ -324,14 +368,38 @@ export function SessionDetailsPage() {
           <h1>{session.player_name}</h1>
 
           <p>
-            Build <code>{session.build_version}</code>, started{" "}
-            {formatDate(session.started_at)}.
+            Build <code>{session.build_version}</code>,
+            started {formatDate(session.started_at)}.
+            {session.ended_at ? (
+              <>
+                {" "}
+                Completed {formatDate(session.ended_at)}
+                {" "}after <strong>{duration}</strong>.
+              </>
+            ) : (
+              <> The playtest is still active.</>
+            )}
           </p>
         </div>
 
-        <Link className="button button--secondary" to="/sessions">
-          Back to sessions
-        </Link>
+        <div className="page-header__actions">
+          <span
+            className={
+              isCompleted
+                ? "status-badge status-badge--completed"
+                : "status-badge status-badge--active"
+            }
+          >
+            {isCompleted ? "Completed" : "Active"}
+          </span>
+
+          <Link
+            className="button button--secondary"
+            to="/sessions"
+          >
+            Back to sessions
+          </Link>
+        </div>
       </header>
 
       <div className="stat-grid">

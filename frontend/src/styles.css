@@ -252,17 +252,32 @@ code {
 }
 
 .status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.35rem 0.6rem;
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 700;
+  white-space: nowrap;
 }
 
+.status-badge--active {
+  background: rgba(78, 93, 197, 0.2);
+  color: #a9b3ff;
+}
+
+.status-badge--completed,
 .status-badge--success {
   background: rgba(47, 138, 91, 0.18);
   color: #79d8a5;
 }
 
+.page-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
 .table-wrapper {
   overflow-x: auto;
   border: 1px solid #29303d;
@@ -358,6 +373,15 @@ tbody tr:hover {
 
   .stat-grid {
     grid-template-columns: 1fr;
+  }
+
+  .page-header__actions {
+    width: 100%;
+  }
+
+  .page-header__actions .button {
+    flex: 1;
+    text-align: center;
   }
 }
 

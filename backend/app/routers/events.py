@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -14,6 +16,46 @@ VALIDATION_TRIGGER_EVENT_TYPES = {
     "quest_completed",
     "reward_given",
 }
+
+
+def normalize_event_timestamp(
+    timestamp: datetime | None,
+) -> datetime:
+    if timestamp is None:
+        return (
+            datetime.now(timezone.utc)
+            .replace(tzinfo=None)
+        )
+
+    if timestamp.tzinfo is None:
+        return timestamp
+
+    return (
+        timestamp
+        .astimezone(timezone.utc)
+        .replace(tzinfo=None)
+    )
+
+
+def update_session_lifecycle(
+    playtest_session: PlaytestSession,
+    event_type: str,
+    event_timestamp: datetime,
+) -> None:
+    if event_type == "game_started":
+        if event_timestamp < playtest_session.started_at:
+            playtest_session.started_at = event_timestamp
+
+        return
+
+    if event_type != "game_ended":
+        return
+
+    if (
+        playtest_session.ended_at is None
+        or event_timestamp < playtest_session.ended_at
+    ):
+        playtest_session.ended_at = event_timestamp
 
 
 @router.post(
@@ -37,15 +79,27 @@ def create_event(
             detail="Playtest session not found",
         )
 
+    event_timestamp = normalize_event_timestamp(
+        event_data.timestamp,
+    )
+
     telemetry_event = TelemetryEvent(
         session_id=event_data.session_id,
         event_type=event_data.event_type,
+        timestamp=event_timestamp,
         area=event_data.area,
         quest_id=event_data.quest_id,
         payload=event_data.payload,
     )
 
     db.add(telemetry_event)
+
+    update_session_lifecycle(
+        playtest_session,
+        telemetry_event.event_type,
+        event_timestamp,
+    )
+
     db.flush()
 
     if (

@@ -9,19 +9,42 @@ Large RPGs contain branching quests, dependent objectives, rewards, dialogue cho
 This project demonstrates how structured gameplay telemetry can help QA engineers and developers:
 
 - inspect complete playtest sessions;
+- distinguish active and completed playtests;
+- preserve the real order and timestamps of gameplay events;
 - detect invalid quest states automatically;
 - identify problematic game areas;
 - analyze player deaths and performance drops;
 - generate consistent Markdown bug reports with reproduction steps.
 
+The project includes a working Unreal Engine demonstration level that sends gameplay telemetry to FastAPI in real time.
+
 ## Current Status
 
-The backend API, analytical frontend dashboard, automated test suite, continuous integration workflow, and Docker Compose environment are implemented and connected.
+The complete end-to-end telemetry pipeline is implemented:
+
+```text
+Unreal Engine 5
+        |
+        v
+    FastAPI
+        |
+        v
+   PostgreSQL
+        |
+        v
+React QA Dashboard
+```
 
 The project currently supports:
 
-- playtest session creation;
+- Unreal Engine playtest session creation;
+- automatic `game_started` and `game_ended` events;
+- active and completed session states;
+- playtest duration calculation;
+- queued Unreal events while a session is being created;
+- gameplay telemetry triggers placed directly in a UE5 level;
 - telemetry event ingestion;
+- preservation of client event timestamps;
 - quest state validation;
 - automatic issue detection;
 - Markdown bug report generation;
@@ -33,14 +56,22 @@ The project currently supports:
 - responsive frontend navigation;
 - route-level frontend code splitting;
 - isolated backend API tests;
+- session lifecycle regression tests;
 - quest validator and bug report tests;
 - automated frontend linting and production builds;
 - full-stack Docker startup;
 - automated Docker smoke testing in CI.
 
-Unreal Engine telemetry integration is the next major development stage.
-
 ## Tech Stack
+
+### Game Integration
+
+- Unreal Engine 5.8
+- C++
+- Unreal HTTP module
+- Unreal JSON serialization
+- `UGameInstanceSubsystem`
+- level-based telemetry trigger actors
 
 ### Backend
 
@@ -78,30 +109,29 @@ Unreal Engine telemetry integration is the next major development stage.
 - Nginx reverse proxy
 - persistent Docker volume
 
-### Planned Game Integration
-
-- Unreal Engine 5
-- reusable C++ telemetry sender
-- UE5 demonstration level
-
 ## Architecture
 
+### End-to-End Telemetry Flow
+
 ```text
-Gameplay Client / Demo Generator
-              |
-              v
-        FastAPI Backend
-              |
-              v
-         PostgreSQL
-              |
-              v
-     React QA Dashboard
+Unreal Engine Demo
+        |
+        | HTTP + JSON
+        v
+FastAPI Backend
+        |
+        | SQLAlchemy
+        v
+PostgreSQL
+        |
+        | REST API
+        v
+React QA Dashboard
 ```
 
-The gameplay client sends structured telemetry events to the API. The backend stores the events, validates quest progression, and creates detected issues. The frontend retrieves the stored data and presents it as timelines, filters, charts, and risk summaries.
+The Unreal Engine client creates a playtest session and sends structured gameplay events to the API. The backend stores those events, updates the session lifecycle, validates quest progression, and creates detected issues. The frontend retrieves the stored data and presents it as timelines, filters, charts, statuses, durations, and risk summaries.
 
-The Docker environment uses the following structure:
+### Docker Runtime
 
 ```text
 Browser
@@ -119,14 +149,105 @@ PostgreSQL
 
 Nginx serves the production frontend and proxies `/api` requests to the FastAPI container.
 
+## Unreal Engine Integration
+
+The Unreal project is located at:
+
+```text
+unreal-demo/RPGTelemetryDemo
+```
+
+Main integration classes:
+
+```text
+UTelemetrySubsystem
+ATelemetryTrigger
+```
+
+### `UTelemetrySubsystem`
+
+The game instance subsystem manages the telemetry lifecycle:
+
+1. initializes when the Unreal playtest starts;
+2. queues `game_started` before a backend session is available;
+3. checks the FastAPI health endpoint;
+4. creates a new playtest session;
+5. stores the returned session ID;
+6. sends queued and live gameplay events;
+7. sends `game_ended` when the playtest stops;
+8. waits for pending HTTP requests before the PIE game instance is destroyed.
+
+Each Unreal Play session creates a separate backend playtest session.
+
+### `ATelemetryTrigger`
+
+Telemetry triggers can be placed directly in the level and configured in the Unreal Editor.
+
+Editable values include:
+
+- event type;
+- area;
+- quest ID;
+- quest stage;
+- trigger-once behavior.
+
+When the player overlaps a trigger, it sends a structured event to FastAPI.
+
+### Session Lifecycle
+
+```text
+Play
+  |
+  v
+game_started
+  |
+  v
+gameplay events
+  |
+  v
+game_ended
+  |
+  v
+Completed session
+```
+
+While the Unreal playtest is running, the dashboard displays the session as:
+
+```text
+Active
+In progress
+```
+
+After Stop is pressed in Unreal, the same session becomes:
+
+```text
+Completed
+<calculated duration>
+```
+
 ## Implemented Features
 
 ### Telemetry Sessions
 
 - create and list playtest sessions;
 - retrieve a session with its events and detected issues;
+- distinguish active and completed sessions;
+- store session start and end times;
+- calculate completed session duration;
 - associate events with player, build, quest, area, and timestamp;
+- preserve timestamps sent by the gameplay client;
 - store arbitrary structured event payloads.
+
+### Telemetry Event Lifecycle
+
+The backend interprets lifecycle events automatically:
+
+```text
+game_started -> session started_at
+game_ended   -> session ended_at
+```
+
+Timezone-aware timestamps are normalized to UTC before storage.
 
 ### Quest Validation
 
@@ -135,6 +256,8 @@ The validation service detects invalid quest situations such as:
 - rewards granted before quest completion;
 - quests completed without all required stages;
 - incomplete or inconsistent quest progression.
+
+Validation runs automatically when relevant events such as `quest_completed` or `reward_given` are received.
 
 Detected issues contain:
 
@@ -165,6 +288,8 @@ The React dashboard includes:
 - player deaths and FPS drops grouped by area;
 - area risk overview;
 - session list;
+- active and completed session badges;
+- completed session duration;
 - detailed event timeline;
 - expandable event payloads;
 - issue search and filters;
@@ -186,9 +311,9 @@ Low issue         +1
 Risk levels:
 
 ```text
-0–1    Low
-2–4    Medium
-5–7    High
+0-1    Low
+2-4    Medium
+5-7    High
 8+     Critical
 ```
 
@@ -196,7 +321,7 @@ This score is an analytical QA heuristic rather than a gameplay difficulty measu
 
 ## Run with Docker
 
-The complete application can be built and started with Docker Compose:
+The complete web application can be built and started with Docker Compose:
 
 ```bash
 docker compose up --build
@@ -310,6 +435,44 @@ For frontend configuration and available routes, see:
 frontend/README.md
 ```
 
+## Run the Unreal Engine Demo
+
+Start the backend first:
+
+```bash
+cd backend
+uvicorn app.main:app --reload
+```
+
+Then open:
+
+```text
+unreal-demo/RPGTelemetryDemo/RPGTelemetryDemo.uproject
+```
+
+In Unreal Editor:
+
+1. open the demonstration level;
+2. press Play;
+3. move through the configured telemetry triggers;
+4. inspect the new Active session in the dashboard;
+5. press Stop;
+6. refresh the dashboard and inspect the Completed session.
+
+The Unreal client currently sends telemetry to:
+
+```text
+http://127.0.0.1:8000
+```
+
+A complete playtest timeline should contain:
+
+```text
+game_started
+quest and area events
+game_ended
+```
+
 ## Generate Demo Sessions
 
 With the backend running locally:
@@ -327,7 +490,15 @@ The generator creates several example playtest scenarios:
 - quest completed without required stages;
 - reward granted before quest completion.
 
-Broken sessions can then be validated through the API to create detected issues.
+Each generated scenario now includes:
+
+```text
+game_started
+scenario events
+game_ended
+```
+
+Generated sessions therefore appear as Completed and include a calculated duration.
 
 ## Main API Endpoints
 
@@ -375,6 +546,8 @@ The tests cover:
 - health endpoint;
 - session creation and retrieval;
 - telemetry event ingestion;
+- client timestamp preservation;
+- active-to-completed session lifecycle;
 - missing-resource responses;
 - valid quest progression;
 - missing required quest stages;
@@ -393,6 +566,19 @@ npm run build
 ```
 
 The frontend uses lazy-loaded routes and code splitting so analytical dependencies are not included in every initial page load.
+
+## Unreal Build Check
+
+Close Unreal Editor before compiling the project through Visual Studio.
+
+Build configuration:
+
+```text
+Development Editor
+Win64
+```
+
+The Unreal project keeps source code and required content in Git while ignoring generated project files, IDE metadata, binaries, intermediate build files, and removed template variants.
 
 ## Continuous Integration
 
@@ -420,16 +606,41 @@ Docker Smoke Test
 
 The Docker smoke test runs only after the backend and frontend jobs complete successfully.
 
+## Repository Structure
+
+```text
+backend/
+  app/
+  scripts/
+  tests/
+
+frontend/
+  src/
+
+unreal-demo/
+  RPGTelemetryDemo/
+
+.github/
+  workflows/
+
+docker-compose.yml
+README.md
+```
+
+## Historical Session Note
+
+Sessions created before lifecycle support may remain marked as Active when they do not contain a `game_ended` event. Their completion time cannot be reconstructed reliably without inventing data.
+
+New Unreal and generated demo sessions use the complete lifecycle and are displayed correctly.
+
 ## Roadmap
 
-- create an Unreal Engine 5 demonstration level;
-- implement a reusable C++ telemetry sender;
-- send real gameplay events from Unreal Engine to FastAPI;
-- test end-to-end telemetry ingestion from the game;
-- add architecture diagrams and application screenshots;
+- add architecture diagrams;
+- add application and Unreal Engine screenshots;
 - prepare a portfolio demonstration video;
-- complete final documentation and deployment notes.
+- add deployment notes;
+- perform final documentation and UI polish.
 
 ## Project Purpose
 
-This is a portfolio project focused on backend development, gameplay telemetry, QA automation, automated testing, continuous integration, containerization, data analysis, and integration between game code and external development tools.
+This is a portfolio project focused on backend development, gameplay telemetry, QA automation, automated testing, continuous integration, containerization, data analysis, C++ game integration, and communication between a game client and external development tools.
